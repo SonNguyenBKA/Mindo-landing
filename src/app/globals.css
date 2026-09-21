@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Mindo · Design tokens (từ Figma "Mindo · Landing page v2")
+   ============================================================ */
+@theme {
+  /* Nền */
+  --color-space: #04122a; /* nền section tối */
+  --color-space-deep: #020d1e; /* nền footer */
+  --color-ink: #08182f; /* navy đậm — chữ trên nút lime */
+  --color-mist: #f5f7fa; /* nền section sáng A */
+  --color-mist-cool: #f0f4fa; /* nền section sáng B */
+
+  /* Lime thương hiệu */
+  --color-lime: #b4d001;
+  --color-lime-soft: #cfe24a;
+
+  /* Chữ trên nền tối */
+  --color-snow: #f2f6fb;
+  --color-haze: #9fb0c6;
+  --color-slate-dim: #617084;
+
+  /* Màu phụ dùng cho badge/icon của các section */
+  --color-accent-violet: #6366f1;
+  --color-accent-amber: #f59e0b;
+
+  /* Typography */
+  --font-sans: var(--font-be-vietnam), ui-sans-serif, system-ui, sans-serif;
+
+  /*
+   * Chiều cao header dính: 72px nội dung + 1px viền dưới.
+   * Thanh header VÀ khoảng chừa khi cuộn tới anchor đều lấy từ token này,
+   * nếu tách ra hai con số thì lệch nhau là lộ một dải section phía trước.
+   */
+  --header-height: 73px;
+
+  /* Nhịp section */
+  --spacing-gutter: 9rem; /* 144px — lề trái/phải của design 1440 */
+}
+
+/* ============================================================
+   Nền tảng
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-space);
+  color: var(--color-snow);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Khoá scroll khi mở menu mobile */
+body[data-scroll-locked="true"] {
+  overflow: hidden;
+}
+
+::selection {
+  background-color: var(--color-lime);
+  color: var(--color-ink);
+}
+
+/* ============================================================
+   Tiện ích dùng lại
+   ============================================================ */
+@utility container-mindo {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 3rem;
+  }
+  @media (width >= 80rem) {
+    padding-inline: var(--spacing-gutter);
+  }
+}
+
+/*
+ * Hero dùng lề hẹp hơn (112px thay vì 144px) — đúng như Figma, nơi khối nội
+ * dung hero rộng 1216px. Thêm chỗ này thì dòng "Nhắn tin, gọi điện." mới đủ
+ * chỗ nằm trên một dòng ở 1440px.
+ */
+@utility container-hero {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 3rem;
+  }
+  @media (width >= 80rem) {
+    padding-inline: 7rem;
+  }
+}
+
+/*
+ * Chừa đúng chiều cao header khi cuộn tới anchor.
+ * Chừa thiếu thì header che mất đầu section; chừa thừa thì hở ra một dải
+ * mỏng của section liền trước — cả hai đều thấy rõ ở ranh giới sáng/tối.
+ */
+@utility scroll-below-header {
+  scroll-margin-top: var(--header-height);
+}
+
+/* Chữ gradient lime */
+@utility text-gradient-lime {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-lime) 0%,
+    var(--color-lime-soft) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* ============================================================
+   Trạng thái trước khi GSAP khởi động
+
+   `.mindo-motion` được render sẵn trên <html> ngay từ server, nên không có
+   nguy cơ lệch hydration. Phần tử sẽ reveal được ẩn sẵn để không "nháy" nội
+   dung trước lúc animation chạy.
+
+   Hai đường thoát để nội dung không bị ẩn vĩnh viễn:
+     - JS bị tắt  -> <noscript> trong layout ghi đè về trạng thái hiện
+     - giảm chuyển động -> media query bên dưới ghi đè về trạng thái hiện
+   ============================================================ */
+html.mindo-motion [data-reveal] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* Dòng tiêu đề chờ sẵn bên dưới khung bao trước khi chạy lên */
+html.mindo-motion [data-mask-line] > span {
+  transform: translateY(110%);
+  will-change: transform;
+}
+
+/* Không animation: hiện hết, bỏ mọi chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  html.mindo-motion [data-reveal],
+  html.mindo-motion [data-mask-line] > span {
+    opacity: 1;
+    transform: none;
+  }
+  .mindo-twinkle,
+  .mindo-streak {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   Animation CSS thuần (nền trang trí — không cần GSAP)
+   ============================================================ */
+@keyframes mindo-twinkle {
+  0%,
+  100% {
+    opacity: var(--twinkle-min, 0.25);
+  }
+  50% {
+    opacity: var(--twinkle-max, 1);
+  }
+}
+
+/*
+ * Sao băng bay theo đúng đường chéo của chính nó.
+ *
+ * `rotate()` phải nằm **trong** keyframe: transform là một thuộc tính duy nhất,
+ * nên nếu để rotate ở inline style rồi keyframe chỉ ghi translate thì rotate bị
+ * ghi đè mất — vạch sao thành nằm ngang và chỉ trôi chéo.
+ *
+ * Quay trước rồi `translateX` sau, nên phép dịch chuyển diễn ra trên trục X
+ * **cục bộ** (đã nghiêng) = đúng hướng đường chéo. Nhờ vậy chỉ cần một khoảng
+ * đường đi thay vì tách thành hai thành phần x/y.
+ */
+@keyframes mindo-streak {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--streak-angle, 30deg)) translateX(0) scaleX(0.35);
+  }
+  12% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--streak-angle, 30deg))
+      translateX(var(--streak-travel, 320px)) scaleX(1);
+  }
+}
+
+.mindo-twinkle {
+  animation: mindo-twinkle var(--twinkle-dur, 4s) ease-in-out infinite;
+  animation-delay: var(--twinkle-delay, 0s);
+  /* Xem ghi chú ở `.mindo-streak` về lý do cần `backwards` */
+  animation-fill-mode: backwards;
+}
+
+.mindo-streak {
+  /*
+   * Đặt lại rotate ở đây để khi `prefers-reduced-motion` tắt animation, vạch
+   * sao vẫn giữ đúng góc nghiêng chứ không nằm ngang.
+   */
+  transform: rotate(var(--streak-angle, 30deg));
+  /* Quay và giãn quanh đuôi vạch, để đầu sao là phần lao đi phía trước */
+  transform-origin: left center;
+  animation: mindo-streak var(--streak-dur, 6s) linear infinite;
+  animation-delay: var(--streak-delay, 0s);
+  /*
+   * `backwards` là bắt buộc, không phải tuỳ chọn.
+   *
+   * Mỗi vệt có delay ngẫu nhiên tới 9s. Với `fill-mode: none` (mặc định), suốt
+   * thời gian chờ đó phần tử dùng style thường của nó — không có `opacity` nên
+   * bằng 1 — thành ra vệt sao **hiện rõ và đứng im** cho tới khi tới lượt chạy.
+   *
+   * `backwards` khiến nó nhận sẵn trạng thái ở mốc 0% (opacity 0) ngay từ đầu,
+   * nên vệt chỉ xuất hiện đúng lúc bắt đầu bay.
+   */
+  animation-fill-mode: backwards;
+}
+
+/* Thanh cuộn */
+@media (width >= 64rem) {
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-space-deep);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1b3a63;
+    border-radius: 999px;
+    border: 2px solid var(--color-space-deep);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2a5387;
+  }
+}

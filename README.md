@@ -1,93 +1,166 @@
-# Mindo-Landing
+# Mindo — Landing page
 
+Landing page cho Mindo, dựng theo thiết kế Figma _"Mindo · Landing page v2"_ và
+_"Mindo · Liên hệ"_.
 
+**Công nghệ:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · GSAP 3 · Zod
 
-## Getting started
+## Nguồn thiết kế
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Figma file `oneBH6QD5NcZD7fxNeKEkn`:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Trang chủ — node [`1368-120`](https://www.figma.com/design/oneBH6QD5NcZD7fxNeKEkn/Mindo?node-id=1368-120)
+- Trang liên hệ — node [`1411-929`](https://www.figma.com/design/oneBH6QD5NcZD7fxNeKEkn/Mindo?node-id=1411-929)
 
-## Add your files
+Thiết kế dựng ở khung 1440px. Khi đối chiếu lại, lưu ý một số chỗ code đã chỉnh
+có ý thức so với file gốc:
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- Nút store ở CTA cuối nở theo nội dung (`min-w`) thay vì cố định 180px, để chữ
+  "Google Play" không bị xuống dòng.
+- Cụm từ "Điền biểu mẫu **bên cạnh**" đổi thành "**bên dưới**" ở mobile, vì biểu
+  mẫu không còn nằm cạnh cột chữ.
+- FAQ mở sẵn cả 5 hàng đúng như design (mọi hàng đều hiện dấu trừ), nhưng có thể
+  bấm để thu gọn.
+
+---
+
+## Chạy dự án
+
+```bash
+npm install
+npm run dev     # http://localhost:3000
+```
+
+```bash
+npm run build   # build production (Turbopack)
+npm start       # chạy bản đã build
+npm run lint    # ESLint
+```
+
+Yêu cầu Node.js ≥ 20.9.
+
+---
+
+## Cấu trúc
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/mindo2/mindo-landing.git
-git branch -M main
-git push -uf origin main
+src/
+├── app/
+│   ├── layout.tsx              # font, metadata, Header + Footer, cờ chống nháy nội dung
+│   ├── page.tsx                # trang chủ — ghép 8 section
+│   ├── globals.css             # design token + utility + animation nền
+│   ├── icon.svg, apple-icon.png
+│   ├── robots.ts, sitemap.ts
+│   ├── lien-he/page.tsx        # trang liên hệ
+│   └── api/contact/route.ts    # nhận biểu mẫu liên hệ
+│
+├── components/
+│   ├── layout/                 # Header (có menu mobile), Footer
+│   ├── sections/
+│   │   ├── home/               # Hero, Capabilities, AiAssistant, News,
+│   │   │                       # MindoPeer, ThreeSteps, Messaging, FinalCta
+│   │   └── contact/            # ContactHero, ContactChannels,
+│   │                           # ContactFormSection (+ ContactForm), ContactFaqSection
+│   ├── motion/                 # lớp animation: Reveal, MaskedLines, Float,
+│   │                           # Parallax, CountUp, SmoothScrollProvider
+│   ├── bg/                     # nền vũ trụ: StarField, ShootingStars, TechGrid, Glow/Nebula
+│   └── ui/                     # Logo, Badge, Button, PhoneFrame, SignalRings,
+│                               # SectionHeading, Sparkline, ScaledStage, Icons
+└── lib/
+    ├── gsap.ts                 # đăng ký plugin, kiểm tra prefers-reduced-motion
+    ├── contact-schema.ts       # schema Zod dùng chung client + server
+    └── random.ts               # PRNG có hạt giống cho nền sao
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://gitlab.com/mindo2/mindo-landing/-/settings/integrations)
+## Design token
 
-## Collaborate with your team
+Khai báo trong `src/app/globals.css` (khối `@theme`), dùng như class Tailwind
+bình thường (`bg-space`, `text-haze`, …).
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+| Token                        | Giá trị   | Dùng cho                       |
+| ---------------------------- | --------- | ------------------------------ |
+| `space` / `space-deep`       | `#04122a` / `#020d1e` | nền section tối / footer |
+| `mist` / `mist-cool`         | `#f5f7fa` / `#f0f4fa` | nền section sáng      |
+| `lime` / `lime-soft`         | `#b4d001` / `#cfe24a` | màu thương hiệu, CTA  |
+| `ink`                        | `#08182f` | chữ trên nút lime              |
+| `snow` / `haze` / `slate-dim`| `#f2f6fb` / `#9fb0c6` / `#617084` | chữ trên nền tối |
 
-## Test and Deploy
+Chữ: **Be Vietnam Pro** (`next/font/google`, có subset `vietnamese`).
 
-Use the built-in continuous integration in GitLab.
+Hai container: `container-mindo` (lề 144px) cho hầu hết section và
+`container-hero` (lề 112px) cho hero — đúng theo hai độ rộng trong Figma.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+---
 
-***
+## Lớp animation
 
-# Editing this README
+Tất cả animation đi qua các component trong `components/motion/`:
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+| Component      | Việc nó làm                                                   |
+| -------------- | ------------------------------------------------------------- |
+| `Reveal`       | hiện một khối khi cuộn tới (fade + trượt)                     |
+| `RevealStagger`| hiện lần lượt các con `RevealItem` bằng **một** ScrollTrigger |
+| `MaskedLines`  | tiêu đề chạy lên từng dòng, bị cắt bởi khung bao              |
+| `Float`        | trôi lơ lửng vô hạn (cụm điện thoại, thẻ Peer, chip)          |
+| `Parallax`     | dịch chuyển quầng sáng / tinh vân theo tiến độ cuộn           |
+| `CountUp`      | đếm số khi cuộn tới                                           |
 
-## Suggestions for a good README
+Nền trang trí (sao nhấp nháy, sao băng) dùng **animation CSS thuần**, không qua
+GSAP — nhẹ hơn và tự tắt theo `prefers-reduced-motion`.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Không để nội dung bị nháy, cũng không để bị ẩn vĩnh viễn
 
-## Name
-Choose a self-explaining name for your project.
+Phần tử sắp reveal cần ẩn sẵn, nhưng nếu ẩn bằng CSS vô điều kiện thì khi JS
+lỗi/tắt nội dung sẽ mất hẳn. Cách xử lý:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- `<html>` được render sẵn class `mindo-motion` **ngay từ server** (không dùng
+  script sửa DOM — sẽ gây lệch hydration với React).
+- `html.mindo-motion [data-reveal] { opacity: 0 }` ẩn phần tử trước khi chạy.
+- Hai đường thoát: thẻ `<noscript>` trong `layout.tsx` trả mọi thứ về trạng thái
+  hiện khi không có JS, và media query `prefers-reduced-motion` làm điều tương tự.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+---
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Biểu mẫu liên hệ
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+`POST /api/contact` — validate bằng Zod (`lib/contact-schema.ts`, dùng chung cho
+client và server), giới hạn 5 lượt gửi thành công / 10 phút / IP.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+| Mã  | Khi nào                        |
+| --- | ------------------------------ |
+| 200 | nhận thành công                |
+| 400 | body không phải JSON hợp lệ    |
+| 422 | dữ liệu sai — kèm `fieldErrors`|
+| 429 | vượt giới hạn gửi              |
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+> **Chưa gửi email thật.** Hiện route chỉ `console.info` yêu cầu nhận được.
+> Chỗ cần nối dịch vụ gửi mail được đánh dấu `TODO` trong
+> `src/app/api/contact/route.ts` (có sẵn ví dụ dùng Resend). Định tuyến theo chủ
+> đề: `Mindo Peer & đại lý` → `peer@mindo.vn`, còn lại → `hotro@mindo.vn`.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Bộ đếm rate limit nằm trong RAM của tiến trình, đủ cho một server đơn lẻ. Nếu
+deploy nhiều instance hoặc lên serverless thì cần chuyển sang Redis/KV.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+---
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Ảnh
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Ảnh chụp màn hình app trong `public/phones/` và ảnh minh hoạ tin tức trong
+`public/news/` được xuất từ Figma. Logo Mindo **không** dùng ảnh — được dựng lại
+bằng SVG trong `components/ui/Logo.tsx` để luôn sắc nét và không mang theo nền
+trắng khi đặt trên nền tối.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+---
 
-## License
-For open source projects, say how it is licensed.
+## Responsive
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Thiết kế Figma chỉ có bản desktop 1440px; bố cục mobile và tablet được suy ra:
+các cột gộp thành một, nav thu về menu mobile, type scale giảm bằng `clamp()`.
+
+Các cụm dựng bằng toạ độ tuyệt đối (cụm điện thoại, thẻ Peer) đặt trong
+`ScaledStage`: bên trong giữ đúng kích thước gốc theo Figma để mọi `top/left`
+không lệch, bên ngoài thu nhỏ bằng `scale` **và** tính lại `width`/`height` —
+vì `transform: scale()` không làm nhỏ ô mà phần tử chiếm trong layout, thiếu
+bước này sẽ chừa ra một vùng trống lớn quanh cụm trên mobile.

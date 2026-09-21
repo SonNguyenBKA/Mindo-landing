@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!--
+    Dấu hiệu Mindo: vòng tròn hở + lõi lime, đặt trên ô navy bo góc.
+    Nền tối để icon nổi trên cả thanh tab sáng và tối.
+    r=14.4 -> chu vi ~90.48; khoảng hở 54deg ~13.57; nét liền ~76.91.
+  -->
+  <rect width="48" height="48" rx="11" fill="#04122a"/>
+  <circle cx="24" cy="24" r="14.4" fill="none" stroke="#c3dd1b"
+          stroke-width="7.4" stroke-linecap="round"
+          stroke-dasharray="76.91 13.57"/>
+  <circle cx="24" cy="24" r="4.6" fill="#f2f6fb"/>
+</svg>
