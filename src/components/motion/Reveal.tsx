@@ -14,10 +14,10 @@ type Direction = "up" | "down" | "left" | "right" | "none";
 type Tag = "div" | "span" | "section" | "ul" | "ol" | "li" | "p" | "h2" | "h3";
 
 const OFFSETS: Record<Direction, { x: number; y: number }> = {
-  up: { x: 0, y: 34 },
-  down: { x: 0, y: -34 },
-  left: { x: 44, y: 0 },
-  right: { x: -44, y: 0 },
+  up: { x: 0, y: 16 },
+  down: { x: 0, y: -16 },
+  left: { x: 16, y: 0 },
+  right: { x: -16, y: 0 },
   none: { x: 0, y: 0 },
 };
 
@@ -40,7 +40,7 @@ type CommonProps = {
 /**
  * Hiện một khối nội dung khi cuộn tới.
  *
- * CSS đã ẩn sẵn `[data-reveal]` (chỉ khi có JS), nên không bị nháy nội dung.
+ * Nội dung hiển thị mặc định; animation là progressive enhancement.
  */
 export function Reveal({
   children,
@@ -48,7 +48,7 @@ export function Reveal({
   as: Tag = "div",
   from = "up",
   delay = 0,
-  duration = 0.9,
+  duration = 0.55,
   scale,
   start = "top 85%",
   id,
@@ -107,7 +107,7 @@ export function RevealStagger({
   as: Tag = "div",
   from = "up",
   delay = 0,
-  duration = 0.8,
+  duration = 0.55,
   scale,
   stagger = 0.1,
   start = "top 85%",

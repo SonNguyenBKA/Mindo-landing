@@ -18,7 +18,8 @@ export function SmoothScrollProvider() {
     if (prefersReducedMotion()) return;
 
     // Font hoặc ảnh tải xong làm thay đổi chiều cao trang -> vị trí trigger lệch.
-    const refresh = () => ScrollTrigger.refresh();
+    // Wait until scrolling finishes so lazy images cannot interrupt anchor travel.
+    const refresh = () => ScrollTrigger.refresh(true);
 
     const fontsReady = document.fonts?.ready;
     fontsReady?.then(refresh).catch(() => {});
@@ -34,6 +35,10 @@ export function SmoothScrollProvider() {
 
     return () => {
       window.removeEventListener("load", refresh);
+      images.forEach((img) => {
+        img.removeEventListener("load", refresh);
+        img.removeEventListener("error", refresh);
+      });
     };
   }, []);
 

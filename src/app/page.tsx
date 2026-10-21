@@ -1,23 +1,22 @@
 import { Hero } from "@/components/sections/home/Hero";
 import { Capabilities } from "@/components/sections/home/Capabilities";
-import { AiAssistant } from "@/components/sections/home/AiAssistant";
-import { News } from "@/components/sections/home/News";
+import { ProductStory } from "@/components/sections/home/ProductStory";
 import { MindoPeer } from "@/components/sections/home/MindoPeer";
 import { ThreeSteps } from "@/components/sections/home/ThreeSteps";
-import { Messaging } from "@/components/sections/home/Messaging";
 import { FinalCta } from "@/components/sections/home/FinalCta";
+import { PageMotion } from "@/components/motion/PageMotion";
+import { News } from "@/components/sections/home/News";
 
 export default function HomePage() {
   return (
-    <>
+    <PageMotion>
       <Hero />
       <Capabilities />
-      <AiAssistant />
+      <ProductStory />
       <News />
       <MindoPeer />
       <ThreeSteps />
-      <Messaging />
       <FinalCta />
-    </>
+    </PageMotion>
   );
 }

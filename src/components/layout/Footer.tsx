@@ -1,8 +1,5 @@
 import Link from "next/link";
-import { LogoMark } from "@/components/ui/Logo";
-import { StarField } from "@/components/bg/StarField";
-import { ShootingStars } from "@/components/bg/ShootingStars";
-import { Nebula } from "@/components/bg/Glow";
+import { Logo } from "@/components/ui/Logo";
 import { AppStoreIcon, GooglePlayIcon } from "@/components/ui/StoreIcons";
 import {
   FacebookIcon,
@@ -50,38 +47,14 @@ const SOCIALS = [
 export function Footer() {
   return (
     <footer className="relative isolate overflow-hidden border-t border-white/[0.06] bg-space-deep">
-      {/* Nền vũ trụ */}
-      <StarField seed={91} dots={46} sparkles={9} />
-      <ShootingStars seed={23} count={4} />
-      <Nebula
-        color="#b4d001"
-        size={520}
-        opacity={0.16}
-        className="-top-56 -right-24"
-      />
-      <Nebula
-        color="#1d4ed8"
-        coreColor="#60a5fa"
-        size={460}
-        opacity={0.14}
-        className="-bottom-24 -left-32"
-      />
-
       <div className="relative container-mindo pt-10 pb-8 sm:pt-14">
         {/* Lưới cột */}
         <div className="flex flex-col gap-8 sm:gap-10 md:flex-row">
           {/* Cột thương hiệu */}
           <div className="md:w-[36%] md:shrink-0">
-            <div className="flex items-center gap-2.5">
-              <span className="inline-flex size-9 items-center justify-center rounded-[10px] border border-lime/20 bg-gradient-to-br from-[#0b2e5c] to-[#04122a]">
-                <LogoMark size={28} />
-              </span>
-              <span className="text-[20px] leading-6 font-bold text-white">
-                Mindo
-              </span>
-            </div>
+            <Logo tone="light" mark={40} textClassName="text-[20px]" />
 
-            <p className="mt-5 max-w-60 text-[14px] leading-[25px] text-[#4e6580]">
+            <p className="mt-5 max-w-70 text-[14px] leading-[25px] text-haze">
               Nền tảng kết hợp AI, mạng xã hội, tin tức và Mindo Peer trong một
               ứng dụng duy nhất.
             </p>
@@ -125,11 +98,8 @@ export function Footer() {
         </div>
 
         {/* Tải ứng dụng */}
-        <div
-          id="tai-app"
-          className="mt-10 border-b border-white/[0.06] pb-8 scroll-below-header sm:mt-12 sm:pb-10"
-        >
-          <p className="text-[12px] leading-4 tracking-[0.1em] text-[#4e6580]">
+        <div className="mt-10 border-b border-white/[0.06] pb-8 scroll-below-header sm:mt-12 sm:pb-10">
+          <p className="text-[12px] leading-4 tracking-[0.1em] text-haze">
             TẢI ỨNG DỤNG
           </p>
           <div className="mt-3 flex flex-wrap gap-3">
@@ -150,7 +120,7 @@ export function Footer() {
 
         {/* Dòng đáy */}
         <div className="mt-8 sm:mt-10">
-          <p className="text-[13px] leading-[18px] text-[#344d63]">
+          <p className="text-[13px] leading-[18px] text-haze">
             © 2026 Mindo Technology JSC. All rights reserved.
           </p>
         </div>
@@ -162,7 +132,7 @@ export function Footer() {
 function LinkColumn({ title, links }: (typeof COLUMNS)[number]) {
   return (
     <div>
-      <h3 className="bg-gradient-to-r from-haze to-slate-dim bg-clip-text text-[12px] leading-[17px] font-semibold tracking-[0.1em] text-transparent">
+      <h3 className="text-[12px] leading-[17px] font-semibold tracking-[0.1em] text-white">
         {title}
       </h3>
       <ul className="mt-5 flex flex-col gap-3">
@@ -172,7 +142,7 @@ function LinkColumn({ title, links }: (typeof COLUMNS)[number]) {
               href={link.href}
               // `py-1.5 -my-1.5` nới vùng chạm lên ~32px cho ngón tay
               // mà không làm giãn khoảng cách giữa các dòng
-              className="-my-1.5 inline-block py-1.5 text-[14px] leading-5 text-[#4e6580] transition-colors hover:text-haze"
+              className="-my-1.5 inline-block py-1.5 text-[14px] leading-5 text-haze transition-colors hover:text-white"
             >
               {link.label}
             </Link>
@@ -203,7 +173,7 @@ function StoreButton({
     >
       <span className="shrink-0 text-white">{icon}</span>
       <span className="flex flex-col items-start gap-0.5">
-        <span className="text-[9px] leading-3 text-slate-dim">{kicker}</span>
+        <span className="text-[11px] leading-3 text-haze">{kicker}</span>
         <span className="text-[14px] leading-[18px] font-semibold text-white">
           {name}
         </span>

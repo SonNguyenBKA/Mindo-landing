@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@import "./header.css";
+@import "./home.css";
+@import "./feature-bento.css";
+@import "./news.css";
+@import "./peer.css";
 
 /* ============================================================
    Mindo · Design tokens (từ Figma "Mindo · Landing page v2")
@@ -14,11 +19,13 @@
   /* Lime thương hiệu */
   --color-lime: #b4d001;
   --color-lime-soft: #cfe24a;
+  --color-accent-ink: #63750f;
 
   /* Chữ trên nền tối */
   --color-snow: #f2f6fb;
-  --color-haze: #9fb0c6;
-  --color-slate-dim: #617084;
+  --color-haze: #b2c0cf;
+  --color-slate-dim: #536376;
+  --color-line: #dbe1e5;
 
   /* Màu phụ dùng cho badge/icon của các section */
   --color-accent-violet: #6366f1;
@@ -32,7 +39,7 @@
    * Thanh header VÀ khoảng chừa khi cuộn tới anchor đều lấy từ token này,
    * nếu tách ra hai con số thì lệch nhau là lộ một dải section phía trước.
    */
-  --header-height: 73px;
+  --header-height: 80px;
 
   /* Nhịp section */
   --spacing-gutter: 9rem; /* 144px — lề trái/phải của design 1440 */
@@ -42,12 +49,34 @@
    Nền tảng
    ============================================================ */
 html {
+  background-color: var(--browser-chrome-color, var(--color-space));
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+  --page-gutter: clamp(24px, 6vw, 96px);
+}
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid #839b00;
+  outline-offset: 5px;
+}
+section[id] {
+  scroll-margin-top: calc(var(--header-height) + 24px);
+}
+
 body {
-  background-color: var(--color-space);
+  background-color: var(--browser-chrome-color, var(--color-space));
   color: var(--color-snow);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -72,14 +101,7 @@ body[data-scroll-locked="true"] {
   width: 100%;
   max-width: 1440px;
   margin-inline: auto;
-  padding-inline: 1.5rem;
-
-  @media (width >= 48rem) {
-    padding-inline: 3rem;
-  }
-  @media (width >= 80rem) {
-    padding-inline: var(--spacing-gutter);
-  }
+  padding-inline: var(--page-gutter);
 }
 
 /*
@@ -125,23 +147,16 @@ body[data-scroll-locked="true"] {
 /* ============================================================
    Trạng thái trước khi GSAP khởi động
 
-   `.mindo-motion` được render sẵn trên <html> ngay từ server, nên không có
-   nguy cơ lệch hydration. Phần tử sẽ reveal được ẩn sẵn để không "nháy" nội
-   dung trước lúc animation chạy.
-
-   Hai đường thoát để nội dung không bị ẩn vĩnh viễn:
-     - JS bị tắt  -> <noscript> trong layout ghi đè về trạng thái hiện
-     - giảm chuyển động -> media query bên dưới ghi đè về trạng thái hiện
+   Nội dung hiển thị sẵn trong HTML. GSAP chỉ bổ sung chuyển động sau khi
+   khởi tạo, nên lỗi tải JavaScript không làm biến mất nội dung.
    ============================================================ */
 html.mindo-motion [data-reveal] {
-  opacity: 0;
-  will-change: opacity, transform;
+  opacity: 1;
 }
 
-/* Dòng tiêu đề chờ sẵn bên dưới khung bao trước khi chạy lên */
+/* Tiêu đề vẫn đọc được trước khi animation khởi tạo. */
 html.mindo-motion [data-mask-line] > span {
-  transform: translateY(110%);
-  will-change: transform;
+  transform: none;
 }
 
 /* Không animation: hiện hết, bỏ mọi chuyển động */

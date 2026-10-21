@@ -1,74 +1,42 @@
-type Shape = "circle" | "squircle";
-
 type LogoMarkProps = {
-  /** Cạnh của ô logo (px). */
   size?: number;
-  /** `circle` cho header, `squircle` cho footer và ô CTA. */
-  shape?: Shape;
+  tone?: "color" | "white" | "ink";
   className?: string;
 };
 
-/*
- * Hình học của vòng:
- *   r = 14.4 → chu vi C = 2πr ≈ 90.48
- *   khoảng hở 54° ≈ 13.57 đơn vị chiều dài
- *   nét liền = 90.48 − 13.57 ≈ 76.91
- * SVG vẽ nét từ hướng 3 giờ theo chiều kim đồng hồ, nên phần hở tự rơi vào
- * góc trên-phải — đúng như logo gốc.
- */
-const RING_RADIUS = 14.4;
-const RING_DASH = 76.91;
-const RING_GAP = 13.57;
-
-/**
- * Dấu hiệu Mindo: vòng tròn hở navy + lõi lime trên đĩa trắng.
- *
- * Dựng lại bằng SVG thay vì dùng ảnh JPEG gốc, để nét luôn sắc ở mọi kích cỡ
- * và không mang theo nền trắng vuông khi đặt trên nền tối.
- */
+/** Shared transparent two-arc mark, including decorative watermarks. */
 export function LogoMark({
   size = 40,
-  shape = "circle",
+  tone = "color",
   className = "",
 }: LogoMarkProps) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 48 48"
-      fill="none"
+      viewBox="40 45 770 775"
       role="img"
       aria-label="Mindo"
-      className={className}
+      data-brand-mark="two-arc"
+      data-brand-tone={tone}
+      className={`shrink-0 ${className}`}
+      style={tone === "white" ? { filter: "brightness(0) invert(1)" } : undefined}
     >
-      <rect
-        width="48"
-        height="48"
-        rx={shape === "circle" ? 24 : 13}
-        fill="#ffffff"
+      <image
+        href={tone === "ink" ? "/brand/mindo-symbol-ink.svg" : "/brand/mindo-symbol.svg"}
+        x="40" y="45" width="770" height="775"
       />
-      <circle
-        cx="24"
-        cy="24"
-        r={RING_RADIUS}
-        stroke="#0b2447"
-        strokeWidth="7.4"
-        strokeLinecap="round"
-        strokeDasharray={`${RING_DASH} ${RING_GAP}`}
-      />
-      <circle cx="24" cy="24" r="4.6" fill="#c3dd1b" />
     </svg>
   );
 }
 
 type LogoProps = {
-  /** `dark` = chữ navy (nền sáng), `light` = chữ trắng (nền tối). */
+  /** `dark` keeps brand colors; `light` makes the entire logo white. */
   tone?: "dark" | "light";
   /** Cỡ dấu hiệu (px). */
   mark?: number;
   /** Class cho chữ "Mindo" — dùng khi cần cỡ chữ riêng. */
   textClassName?: string;
-  shape?: Shape;
   className?: string;
 };
 
@@ -77,18 +45,24 @@ export function Logo({
   tone = "dark",
   mark = 40,
   textClassName = "text-[22px]",
-  shape = "circle",
   className = "",
 }: LogoProps) {
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
-      <LogoMark size={mark} shape={shape} />
-      <span
-        className={`font-semibold tracking-tight ${textClassName} ${
-          tone === "dark" ? "text-[#021c41]" : "text-snow"
-        }`}
-      >
-        Mindo
+    <span className={`inline-flex items-center gap-2 whitespace-nowrap ${className}`}>
+      <LogoMark size={mark} tone={tone === "light" ? "white" : "color"} />
+      <span className={textClassName}>
+        <svg
+          viewBox="15 16 556 161"
+          width="3.45em"
+          height="1em"
+          role="img"
+          aria-label="mindo"
+          data-brand-wordmark="mindo"
+          className="block"
+          style={tone === "light" ? { filter: "brightness(0) invert(1)" } : undefined}
+        >
+          <image href="/brand/mindo-wordmark.svg" x="15" y="16" width="556" height="161" />
+        </svg>
       </span>
     </span>
   );

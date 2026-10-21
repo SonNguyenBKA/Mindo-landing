@@ -15,24 +15,21 @@ type Variant =
 type Size = "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
-  lime: "bg-[linear-gradient(175deg,#b4d001_21%,#cfe24a_78%)] text-ink shadow-[0_12px_24px_0_rgb(180_208_1/0.4)] hover:shadow-[0_16px_34px_0_rgb(180_208_1/0.55)] hover:brightness-105",
-  "lime-glow":
-    "bg-[linear-gradient(90deg,#b4d001_14%,#cfe24a_85%)] text-ink shadow-[0_0_24px_0_rgb(180_208_1/0.4)] hover:shadow-[0_0_34px_0_rgb(180_208_1/0.55)] hover:brightness-105",
+  lime: "bg-lime-soft text-ink hover:bg-lime",
+  "lime-glow": "bg-lime-soft text-ink hover:bg-lime",
   "ghost-dark":
     "border border-haze/30 bg-haze/[0.07] text-snow hover:border-haze/50 hover:bg-haze/[0.12]",
-  violet:
-    "bg-[linear-gradient(167deg,#6366f1_14.6%,#818cf8_85.4%)] text-white shadow-[0_8px_20px_0_rgb(99_102_241/0.4)] hover:shadow-[0_12px_28px_0_rgb(99_102_241/0.55)] hover:brightness-110",
-  amber:
-    "bg-[linear-gradient(166deg,#f97316_14.6%,#eab308_85.4%)] text-white shadow-[0_8px_20px_0_rgb(249_115_22/0.35)] hover:shadow-[0_12px_28px_0_rgb(249_115_22/0.5)] hover:brightness-105",
+  violet: "bg-lime-soft text-ink hover:bg-lime",
+  amber: "bg-ink text-white hover:bg-space",
 };
 
 const SIZES: Record<Size, string> = {
-  md: "h-[50px] gap-2 rounded-[13px] px-6 text-[15px] leading-5",
-  lg: "h-[54px] gap-2 rounded-[14px] px-7 text-[17px] leading-[22px]",
+  md: "h-[48px] gap-3 rounded-full px-6 text-[14px] leading-5",
+  lg: "h-[54px] gap-3 rounded-full px-7 text-[15px] leading-[22px]",
 };
 
 const BASE =
-  "inline-flex items-center justify-center font-bold whitespace-nowrap transition-all duration-200 " +
+  "inline-flex items-center justify-center font-semibold whitespace-nowrap transition-[background-color,color,transform] duration-200 " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime " +
   "active:translate-y-px";
 
@@ -56,6 +53,11 @@ export function ButtonLink({
     "href" | "className" | "children"
   >) {
   const classes = `${BASE} ${SIZES[size]} ${VARIANTS[variant]} ${className}`;
+
+  // Native fragment links preserve CSS smooth scrolling.
+  if (href.startsWith("#")) {
+    return <a href={href} className={classes}>{children}</a>;
+  }
 
   // Link nội bộ đi qua next/link để được prefetch; link ngoài và mailto thì không.
   const isExternal = href.startsWith("http") || href.startsWith("mailto:");

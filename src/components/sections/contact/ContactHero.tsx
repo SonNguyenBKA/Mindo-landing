@@ -1,94 +1,73 @@
-import { Badge } from "@/components/ui/Badge";
-import { StarField } from "@/components/bg/StarField";
-import { ShootingStars } from "@/components/bg/ShootingStars";
-import { TechGrid } from "@/components/bg/TechGrid";
-import { Glow, Nebula } from "@/components/bg/Glow";
-import { Reveal, RevealItem, RevealStagger } from "@/components/motion/Reveal";
-import { MaskedLines } from "@/components/motion/MaskedLines";
-import { Parallax } from "@/components/motion/Parallax";
+import { OpenAgencyButton } from "@/components/agency/AgencyCta";
+import { ArrowRightIcon } from "@/components/ui/Button";
+import { Glow } from "@/components/bg/Glow";
+import { CalendarIcon, ChatIcon, IdCardIcon } from "@/components/ui/Icons";
+import { ContactForm } from "./ContactForm";
 
-const QUICK_FACTS = [
-  "Phản hồi trong 24 giờ làm việc",
-  "Hỗ trợ tiếng Việt và English",
+const FACTS = [
+  { label: "Phản hồi trong 24 giờ làm việc", value: "Tiếng Việt và tiếng Anh", Icon: ChatIcon },
+  { label: "T2 – T7, 8:30 – 18:00", value: "Giờ Việt Nam (GMT+7)", Icon: CalendarIcon },
+  { label: "Dữ liệu của bạn", value: "Chỉ dùng để xử lý yêu cầu này", Icon: IdCardIcon },
 ];
 
+/**
+ * Trang Liên hệ — một khối duy nhất (21/10/2026): bên trái tiêu đề, giới thiệu, vài
+ * thông tin và lối sang popup đại lý; bên phải là form, thấy ngay ở màn đầu. Trước đây
+ * phần đầu và phần form tách hai khối cùng nền, lặp tiêu đề.
+ */
 export function ContactHero() {
   return (
-    <section className="relative isolate overflow-hidden bg-space py-16 lg:py-20">
-      {/* ---------- Nền ---------- */}
-      <Nebula
-        color="#1d4ed8"
-        coreColor="#60a5fa"
-        size={640}
-        opacity={0.2}
-        className="top-[150px] -left-[150px]"
-      />
-      <Nebula
-        color="#b4d001"
-        size={760}
-        opacity={0.18}
-        className="-top-[300px] left-[53%]"
-      />
-      <TechGrid />
-      <Parallax y={50} className="absolute inset-0">
-        <Glow
-          color="#b4d001"
-          size={600}
-          opacity={0.14}
-          blur={110}
-          className="-top-60 left-[14%]"
-        />
-        <Glow
-          color="#1d4ed8"
-          size={500}
-          opacity={0.18}
-          blur={110}
-          className="top-[180px] -left-15"
-        />
-      </Parallax>
-      <StarField seed={5} dots={64} sparkles={12} />
-      <ShootingStars seed={31} count={4} />
+    <section
+      id="gui-tin-nhan"
+      className="contact-surface relative isolate overflow-hidden bg-space pt-32 pb-24 text-snow sm:pt-40 scroll-below-header"
+    >
+      {/* không khí: lime sau tiêu đề, xanh sau form */}
+      <Glow color="#b4d001" size={520} opacity={0.1} blur={110} className="-top-40 -left-40 -z-10" />
+      <Glow color="#4f86ff" size={640} opacity={0.16} blur={120} className="top-10 -right-48 -z-10" />
+      {/* Điện thoại: tiêu đề → form → thông tin. Máy tính: tiêu đề và thông tin bên trái, form bên phải */}
+      <div className="container-mindo grid items-start gap-x-20 gap-y-12 lg:grid-cols-[.9fr_1.1fr] lg:grid-rows-[auto_1fr]">
+        <div className="lg:col-start-1 lg:row-start-1">
+          <p className="section-label text-haze">Liên hệ với Mindo</p>
+          <h1 className="text-[clamp(36px,4.5vw,56px)] leading-[1.15] font-medium tracking-[-0.035em]">
+            Nói chuyện với
+            <br />
+            <span className="text-lime-soft">đội ngũ Mindo.</span>
+          </h1>
+          <p className="mt-6 max-w-md text-base leading-7 text-haze">
+            Cần hỗ trợ tài khoản, hợp tác hay có câu hỏi về Mindo? Gửi lời nhắn, đội ngũ Mindo sẽ phản hồi
+            qua email.
+          </p>
+        </div>
 
-      {/* ---------- Nội dung ---------- */}
-      <div className="relative container-mindo">
-        <div className="mx-auto flex max-w-[700px] flex-col items-center text-center">
-          <Reveal from="up" duration={0.7}>
-            <Badge tone="lime">LIÊN HỆ VỚI MINDO</Badge>
-          </Reveal>
+        <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <ContactForm />
+        </div>
 
-          <MaskedLines
-            as="h1"
-            delay={0.12}
-            lines={["Nói chuyện với", "đội ngũ Mindo"]}
-            className="mt-6 bg-[linear-gradient(90deg,#f2f6fb_0%,#b4d001_55%,#7dd3fc_100%)] bg-clip-text text-[clamp(2.125rem,5.6vw,3.25rem)] leading-[1.12] font-bold tracking-[-0.01em] text-transparent"
-          />
-
-          <Reveal
-            as="p"
-            from="up"
-            delay={0.3}
-            className="mt-5 max-w-[660px] text-[17px] leading-[1.75] text-haze"
-          >
-            Cần hỗ trợ tài khoản hay muốn sở hữu Mindo Peer theo giá đại lý —
-            chọn đúng kênh bên dưới rồi gửi nội dung, đội ngũ phụ trách sẽ trả
-            lời trực tiếp.
-          </Reveal>
-
-          <RevealStagger
-            from="up"
-            delay={0.42}
-            stagger={0.1}
-            className="mt-8 flex flex-wrap items-center justify-center gap-3"
-          >
-            {QUICK_FACTS.map((fact) => (
-              <RevealItem key={fact} as="span">
-                <span className="inline-flex items-center gap-2 rounded-xl border border-haze/20 bg-haze/[0.06] px-4 py-2.5 text-[13px] leading-[18px] text-haze">
-                  <span className="size-1.5 shrink-0 rounded-full bg-lime" />
-                  {fact}
+        <div className="lg:col-start-1 lg:row-start-2 lg:-mt-2">
+          <ul className="grid max-w-md gap-3">
+            {FACTS.map(({ label, value, Icon }) => (
+              <li key={label} className="flex items-center gap-4">
+                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/[0.06] text-lime-soft ring-1 ring-white/10">
+                  <Icon className="size-5" />
                 </span>
-              </RevealItem>
+                <span className="flex flex-col">
+                  <b className="text-[15px] font-medium text-snow">{label}</b>
+                  <span className="text-sm text-haze">{value}</span>
+                </span>
+              </li>
             ))}
-          </RevealStagger>
+          </ul>
+
+          {/* Mở đại lý đi qua popup riêng (có số điện thoại), không qua form này */}
+          <OpenAgencyButton className="contact-agency-card mt-8">
+            <span>
+              <small>Muốn mở đại lý?</small>
+              <b>Đăng ký đại lý Peer</b>
+            </span>
+            <i aria-hidden="true">
+              <ArrowRightIcon />
+            </i>
+          </OpenAgencyButton>
         </div>
       </div>
     </section>

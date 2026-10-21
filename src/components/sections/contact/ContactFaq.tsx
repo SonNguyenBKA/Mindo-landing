@@ -15,8 +15,8 @@ const FAQS: Faq[] = [
     a: "Liên hệ theo số hotline để gặp bộ phận support của Mindo.",
   },
   {
-    q: "Muốn mua Peer theo giá đại lý thì hỏi ai?",
-    a: "Bạn có thể liên hệ với đại lý cấp 1 của Mindo.",
+    q: "Muốn mở đại lý hoặc mua Peer theo giá đại lý thì làm sao?",
+    a: "Bấm “Mở đại lý Mindo Peer” ở cuối màn hình hoặc mục Đại lý trên menu, để lại thông tin — Mindo sẽ gọi lại tư vấn và báo giá gói. Bạn cũng có thể email peer@mindo.vn.",
   },
   {
     q: "Tôi có thể kinh doanh sản phẩm Mindo ở thị trường quốc tế không?",

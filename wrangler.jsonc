@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "mindo-landing",
+  "account_id": "bb1c064e836b5839e959c7c1d2dee7b3",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    { "binding": "WORKER_SELF_REFERENCE", "service": "mindo-landing" }
+  ],
+  // Form liên hệ / đăng ký đại lý chuyển về API Mindo; mã bí mật WEBSITE_LEAD_SECRET đặt bằng
+  // `wrangler secret put WEBSITE_LEAD_SECRET` (không ghi vào file này)
+  "vars": {
+    "MINDO_API_URL": "https://api-mindo.stg-studio.com"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  }
+}

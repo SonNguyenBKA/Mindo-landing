@@ -9,6 +9,12 @@ export const SUBJECTS = [
   "Khác",
 ] as const;
 
+/** Chủ đề của popup "Đại lý Peer" — server vẫn nhận, nhưng form Liên hệ không cho chọn (mở đại lý chỉ qua popup) */
+export const AGENCY_SUBJECT = "Mindo Peer & đại lý" satisfies (typeof SUBJECTS)[number];
+
+/** Chủ đề hiện trong ô chọn của form Liên hệ */
+export const CONTACT_FORM_SUBJECTS = SUBJECTS.filter((subject) => subject !== AGENCY_SUBJECT);
+
 /**
  * Schema dùng chung cho cả client và server.
  *
@@ -28,6 +34,12 @@ export const contactSchema = z.object({
     .email("Email chưa đúng định dạng.")
     .max(200, "Email quá dài."),
   subject: z.enum(SUBJECTS, { message: "Vui lòng chọn một chủ đề." }),
+  /** Số điện thoại / Zalo — popup "Đại lý Peer" bắt buộc, form Liên hệ không có */
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[0-9+ .()-]{8,20}$/, "Số điện thoại chưa đúng.")
+    .optional(),
   message: z
     .string()
     .trim()

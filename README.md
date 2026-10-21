@@ -1,166 +1,92 @@
 # Mindo — Landing page
 
-Landing page cho Mindo, dựng theo thiết kế Figma _"Mindo · Landing page v2"_ và
-_"Mindo · Liên hệ"_.
+Next.js 16 App Router · TypeScript · Tailwind CSS 4 · GSAP · Three.js / React Three Fiber.
 
-**Công nghệ:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · GSAP 3 · Zod
+## Development
 
-## Nguồn thiết kế
+Requires Node.js ≥ 20.9. Install the locked dependencies with `npm ci`.
 
-Figma file `oneBH6QD5NcZD7fxNeKEkn`:
-
-- Trang chủ — node [`1368-120`](https://www.figma.com/design/oneBH6QD5NcZD7fxNeKEkn/Mindo?node-id=1368-120)
-- Trang liên hệ — node [`1411-929`](https://www.figma.com/design/oneBH6QD5NcZD7fxNeKEkn/Mindo?node-id=1411-929)
-
-Thiết kế dựng ở khung 1440px. Khi đối chiếu lại, lưu ý một số chỗ code đã chỉnh
-có ý thức so với file gốc:
-
-- Nút store ở CTA cuối nở theo nội dung (`min-w`) thay vì cố định 180px, để chữ
-  "Google Play" không bị xuống dòng.
-- Cụm từ "Điền biểu mẫu **bên cạnh**" đổi thành "**bên dưới**" ở mobile, vì biểu
-  mẫu không còn nằm cạnh cột chữ.
-- FAQ mở sẵn cả 5 hàng đúng như design (mọi hàng đều hiện dấu trừ), nhưng có thể
-  bấm để thu gọn.
-
----
-
-## Chạy dự án
-
-```bash
-npm install
-npm run dev     # http://localhost:3000
+```sh
+npm run dev       # http://localhost:3000
+npm run lint
+npx tsc --noEmit
+npm run build
+npm start         # run the production build
 ```
 
-```bash
-npm run build   # build production (Turbopack)
-npm start       # chạy bản đã build
-npm run lint    # ESLint
+## Cloudflare deployment
+
+The current site is deployed to **DOAN VIET** as Worker `mindo-landing`:
+[mindo-landing.doanvanviet1510.workers.dev](https://mindo-landing.doanvanviet1510.workers.dev).
+
+Deployment uses the pinned OpenNext adapter to preserve the existing Next.js runtime and contact API. The account ID and Worker name are explicit in `wrangler.jsonc`; no custom domain or DNS record is configured.
+
+```sh
+npm run cf:types    # regenerate ignored Cloudflare runtime/binding declarations
+npm run cf:preview  # build and test on the Workers runtime
+npm run cf:deploy   # build and deploy to the configured DOAN VIET account
 ```
 
-Yêu cầu Node.js ≥ 20.9.
+Cloudflare builds set `CLOUDFLARE_BUILD=1` to serve original image assets without requiring a Cloudflare Images binding. Local `npm run dev` retains Next.js image optimization. There are no R2, KV, D1 or queue bindings; the site does not use ISR. Build output and local runtime state are ignored by Git.
 
----
+The contact route (`/api/contact`) forwards both the Liên hệ form and the "Đại lý Peer" popup to the Mindo API (`POST /api/v1/public/website-leads`), where Marketing handles them in the admin. It needs `MINDO_API_URL` (a var in `wrangler.jsonc`) and the secret `WEBSITE_LEAD_SECRET` (`npx wrangler secret put WEBSITE_LEAD_SECRET`; locally in `.env.local`). Without them the route answers 503 instead of pretending to accept. Rate limiting is still in memory per isolate.
 
-## Cấu trúc
+## Interface and motion
 
+- Be Vietnam Pro, navy/lime palette, responsive typography and shared spacing.
+- Fixed transparent header over the opening sections; frosted light surface after scrolling. The mobile menu uses a native modal dialog for focus containment and Escape support.
+- The hero displays four product screens: home, AI, news and video calling. White, slim phone geometry, environment lighting, expanding signal waves, drag rotation and direct screen selection are rendered with Three.js. Screens remain unobscured by camera cutouts.
+- Feature tiles link to the relevant sections. A sticky product showcase switches between AI and calling as the reader scrolls. Its 3D phone changes angle with the selected section. News has a separate market-focused block with keyboard-accessible topic tabs and clearly labeled illustrative summaries, not a live feed.
+- Feature content highlights product strengths, with dark-green headline emphasis on light surfaces. Mindo Peer uses a single flat, landscape collectible visual without payment symbols, serial-switching or flip controls. Customer-facing copy uses “vật phẩm số”. Hover adds a small lift and a light sweep on pointer devices.
+- Three.js is loaded dynamically only on eligible desktop devices. Narrow screens, coarse pointers and reduced-motion preferences use the original product images. Poster images also remain available during loading and after context loss or a caught scene error.
+- Hero rendering stops outside the viewport and in a hidden tab. The story scene renders on demand. Pixel density follows the display up to 2×, and texture anisotropy is capped at the smaller of 8× or hardware support. Source screenshots are approximately 393×852; sharper high-density presentation requires higher-resolution source exports. The lightweight room environment is generated locally; no model or lighting files are fetched from external services.
+- Changing device/media eligibility remounts scene readiness so a stale ready flag cannot hide a new scene's loading image.
+- PageMotion reveals feature tiles, section copy, the Peer visual, steps and download buttons once as they enter view. It reacts to reduced-motion changes and keeps server-rendered content visible without JavaScript. Hero light trails are sparse, pause offscreen, and disappear under reduced motion.
+
+### Main files
+
+```text
+src/app/
+  globals.css                  shared palette, layout and accessibility
+  header.css                   transparent/glass header and mobile dialog
+  home.css                     home sections and responsive layouts
+  feature-bento.css            feature tiles and layered product previews
+  news.css                     dedicated market-news preview
+src/components/sections/home/
+  Hero.tsx / HeroVisual.tsx     opening section and four-screen poster
+  SceneSurface.tsx             lazy loading, visibility and image fallback
+  PhoneScene.tsx               lighting, hero rig and story scene
+  PhoneModel.tsx               shared metallic phone geometry and textures
+  ProductStory.tsx             scroll selection and feature content
+  PhoneRig.tsx / SignalWaves.tsx    scene animation and signal pulses
+  useSceneGesture.ts               drag and pointer lifecycle
+  PeerCard.tsx                      single landscape collectible visual
 ```
-src/
-├── app/
-│   ├── layout.tsx              # font, metadata, Header + Footer, cờ chống nháy nội dung
-│   ├── page.tsx                # trang chủ — ghép 8 section
-│   ├── globals.css             # design token + utility + animation nền
-│   ├── icon.svg, apple-icon.png
-│   ├── robots.ts, sitemap.ts
-│   ├── lien-he/page.tsx        # trang liên hệ
-│   └── api/contact/route.ts    # nhận biểu mẫu liên hệ
-│
-├── components/
-│   ├── layout/                 # Header (có menu mobile), Footer
-│   ├── sections/
-│   │   ├── home/               # Hero, Capabilities, AiAssistant, News,
-│   │   │                       # MindoPeer, ThreeSteps, Messaging, FinalCta
-│   │   └── contact/            # ContactHero, ContactChannels,
-│   │                           # ContactFormSection (+ ContactForm), ContactFaqSection
-│   ├── motion/                 # lớp animation: Reveal, MaskedLines, Float,
-│   │                           # Parallax, CountUp, SmoothScrollProvider
-│   ├── bg/                     # nền vũ trụ: StarField, ShootingStars, TechGrid, Glow/Nebula
-│   └── ui/                     # Logo, Badge, Button, PhoneFrame, SignalRings,
-│                               # SectionHeading, Sparkline, ScaledStage, Icons
-└── lib/
-    ├── gsap.ts                 # đăng ký plugin, kiểm tra prefers-reduced-motion
-    ├── contact-schema.ts       # schema Zod dùng chung client + server
-    └── random.ts               # PRNG có hạt giống cho nền sao
-```
 
----
+The AI and messaging sections are consolidated in `ProductStory`; `News` owns the standalone market-news section.
 
-## Design token
+## Verification checklist
 
-Khai báo trong `src/app/globals.css` (khối `@theme`), dùng như class Tailwind
-bình thường (`bg-space`, `text-haze`, …).
+1. Check 1440×900, 1440×720, 1280×720, 1024×768 and 390×844 layouts; no clipped text or horizontal overflow.
+2. Verify transparent → glass header, anchors, native mobile dialog, Escape and focus return.
+3. Confirm all four hero images and the enhanced desktop canvas. Move the pointer over the hero and scroll away/back.
+4. Scroll AI → calling and back; check the phone and selected navigation. Repeat after resizing. Verify news topic selection with click and arrow/Home/End keys.
+5. Select each hero screen with mouse/keyboard and by clicking visible rear screens; drag and release outside the scene. Decorative outlines must not participate in raycasting, and small pointer jitter must not start a drag.
+6. Check reduced-motion, JavaScript-disabled and WebGL-unavailable/context-loss fallbacks in an environment that supports these simulations.
+7. Check the contact page and client validation without sending real personal data.
 
-| Token                        | Giá trị   | Dùng cho                       |
-| ---------------------------- | --------- | ------------------------------ |
-| `space` / `space-deep`       | `#04122a` / `#020d1e` | nền section tối / footer |
-| `mist` / `mist-cool`         | `#f5f7fa` / `#f0f4fa` | nền section sáng      |
-| `lime` / `lime-soft`         | `#b4d001` / `#cfe24a` | màu thương hiệu, CTA  |
-| `ink`                        | `#08182f` | chữ trên nút lime              |
-| `snow` / `haze` / `slate-dim`| `#f2f6fb` / `#9fb0c6` / `#617084` | chữ trên nền tối |
+React Three Fiber 9.7 currently uses `THREE.Clock`; Three.js 0.186 can emit a dependency deprecation warning. This is not suppressed. Frame rate and battery behavior must be measured on target physical devices before release.
 
-Chữ: **Be Vietnam Pro** (`next/font/google`, có subset `vietnamese`).
+## Contact API
 
-Hai container: `container-mindo` (lề 144px) cho hầu hết section và
-`container-hero` (lề 112px) cho hero — đúng theo hai độ rộng trong Figma.
+`POST /api/contact` validates with Zod and limits successful requests to 5 per 10 minutes per IP. It returns 200 (accepted), 400 (invalid JSON), 422 (invalid fields), 429 (rate limited), 502 (the Mindo API did not accept it) or 503 (not configured).
 
----
+Accepted requests — the Liên hệ form and the "Đại lý Peer" popup — are forwarded to the Mindo API (`POST /api/v1/public/website-leads`, header `x-website-secret`), where Marketing handles them under "Liên hệ từ website" in the admin. Configure `MINDO_API_URL` (a var in `wrangler.jsonc`) and the secret `WEBSITE_LEAD_SECRET` (`npx wrangler secret put WEBSITE_LEAD_SECRET`; locally in `.env.local`). Rate limits are in isolate memory; multi-instance deployment requires shared storage.
 
-## Lớp animation
+Store links intentionally point to the App Store and Google Play home pages until product URLs are available. Existing social and policy links also need final destinations before publication.
 
-Tất cả animation đi qua các component trong `components/motion/`:
+## Asset provenance
 
-| Component      | Việc nó làm                                                   |
-| -------------- | ------------------------------------------------------------- |
-| `Reveal`       | hiện một khối khi cuộn tới (fade + trượt)                     |
-| `RevealStagger`| hiện lần lượt các con `RevealItem` bằng **một** ScrollTrigger |
-| `MaskedLines`  | tiêu đề chạy lên từng dòng, bị cắt bởi khung bao              |
-| `Float`        | trôi lơ lửng vô hạn (cụm điện thoại, thẻ Peer, chip)          |
-| `Parallax`     | dịch chuyển quầng sáng / tinh vân theo tiến độ cuộn           |
-| `CountUp`      | đếm số khi cuộn tới                                           |
+Product screenshots and news imagery are from the original [Mindo Figma design](https://www.figma.com/design/oneBH6QD5NcZD7fxNeKEkn/Mindo). The existing SVG logo is retained. Phone geometry is procedural and uses those original screenshots as textures.
 
-Nền trang trí (sao nhấp nháy, sao băng) dùng **animation CSS thuần**, không qua
-GSAP — nhẹ hơn và tự tắt theo `prefers-reduced-motion`.
-
-### Không để nội dung bị nháy, cũng không để bị ẩn vĩnh viễn
-
-Phần tử sắp reveal cần ẩn sẵn, nhưng nếu ẩn bằng CSS vô điều kiện thì khi JS
-lỗi/tắt nội dung sẽ mất hẳn. Cách xử lý:
-
-- `<html>` được render sẵn class `mindo-motion` **ngay từ server** (không dùng
-  script sửa DOM — sẽ gây lệch hydration với React).
-- `html.mindo-motion [data-reveal] { opacity: 0 }` ẩn phần tử trước khi chạy.
-- Hai đường thoát: thẻ `<noscript>` trong `layout.tsx` trả mọi thứ về trạng thái
-  hiện khi không có JS, và media query `prefers-reduced-motion` làm điều tương tự.
-
----
-
-## Biểu mẫu liên hệ
-
-`POST /api/contact` — validate bằng Zod (`lib/contact-schema.ts`, dùng chung cho
-client và server), giới hạn 5 lượt gửi thành công / 10 phút / IP.
-
-| Mã  | Khi nào                        |
-| --- | ------------------------------ |
-| 200 | nhận thành công                |
-| 400 | body không phải JSON hợp lệ    |
-| 422 | dữ liệu sai — kèm `fieldErrors`|
-| 429 | vượt giới hạn gửi              |
-
-> **Chưa gửi email thật.** Hiện route chỉ `console.info` yêu cầu nhận được.
-> Chỗ cần nối dịch vụ gửi mail được đánh dấu `TODO` trong
-> `src/app/api/contact/route.ts` (có sẵn ví dụ dùng Resend). Định tuyến theo chủ
-> đề: `Mindo Peer & đại lý` → `peer@mindo.vn`, còn lại → `hotro@mindo.vn`.
-
-Bộ đếm rate limit nằm trong RAM của tiến trình, đủ cho một server đơn lẻ. Nếu
-deploy nhiều instance hoặc lên serverless thì cần chuyển sang Redis/KV.
-
----
-
-## Ảnh
-
-Ảnh chụp màn hình app trong `public/phones/` và ảnh minh hoạ tin tức trong
-`public/news/` được xuất từ Figma. Logo Mindo **không** dùng ảnh — được dựng lại
-bằng SVG trong `components/ui/Logo.tsx` để luôn sắc nét và không mang theo nền
-trắng khi đặt trên nền tối.
-
----
-
-## Responsive
-
-Thiết kế Figma chỉ có bản desktop 1440px; bố cục mobile và tablet được suy ra:
-các cột gộp thành một, nav thu về menu mobile, type scale giảm bằng `clamp()`.
-
-Các cụm dựng bằng toạ độ tuyệt đối (cụm điện thoại, thẻ Peer) đặt trong
-`ScaledStage`: bên trong giữ đúng kích thước gốc theo Figma để mọi `top/left`
-không lệch, bên ngoài thu nhỏ bằng `scale` **và** tính lại `width`/`height` —
-vì `transform: scale()` không làm nhỏ ô mà phần tử chiếm trong layout, thiếu
-bước này sẽ chừa ra một vùng trống lớn quanh cụm trên mobile.
+Three.js, React Three Fiber and their type declarations use MIT licenses. No additional animation library or external 3D asset service is required.

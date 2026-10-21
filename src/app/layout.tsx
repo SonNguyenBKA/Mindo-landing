@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
+import { AgencyLauncher } from "@/components/agency/AgencyCta";
 
 const beVietnamPro = Be_Vietnam_Pro({
   variable: "--font-be-vietnam",
@@ -13,15 +14,16 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 const SITE_URL = "https://mindo.vn";
+const SITE_TITLE = "Mindo — Trợ lý AI, kết nối và trải nghiệm số";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Mindo",
+    default: SITE_TITLE,
     template: "%s · Mindo",
   },
   description:
-    "Mindo — nền tảng số thế hệ mới: trợ lý AI, nhắn tin và gọi video, tin tức thị trường và Mindo Peer trong chung một tài khoản.",
+    "Khám phá Mindo: trợ lý AI, nhắn tin, gọi video, tin tức thị trường và Mindo Peer — tất cả trong một tài khoản.",
   keywords: [
     "Mindo",
     "trợ lý AI",
@@ -29,7 +31,8 @@ export const metadata: Metadata = {
     "gọi video",
     "tin tức thị trường",
     "Mindo Peer",
-    "ví Mindo",
+    "Peer năm sinh",
+    "đại lý Mindo Peer",
   ],
   authors: [{ name: "Mindo Technology JSC" }],
   openGraph: {
@@ -37,13 +40,13 @@ export const metadata: Metadata = {
     locale: "vi_VN",
     url: SITE_URL,
     siteName: "Mindo",
-    title: "Mindo — AI trả lời. Nhắn tin, gọi điện. Xác lập sở hữu.",
+    title: SITE_TITLE,
     description:
       "Trợ lý AI, nhắn tin và gọi video, tin tức thị trường và Mindo Peer — chung một tài khoản.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mindo — AI trả lời. Nhắn tin, gọi điện. Xác lập sở hữu.",
+    title: SITE_TITLE,
     description:
       "Trợ lý AI, nhắn tin và gọi video, tin tức thị trường và Mindo Peer — chung một tài khoản.",
   },
@@ -103,6 +106,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main id="noi-dung">{children}</main>
         <Footer />
+        <AgencyLauncher />
       </body>
     </html>
   );

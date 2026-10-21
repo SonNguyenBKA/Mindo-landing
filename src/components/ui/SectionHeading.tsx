@@ -44,7 +44,7 @@ export function SectionHeading({
         className={`text-[clamp(1.75rem,4.4vw,2.5rem)] leading-[1.2] font-bold tracking-[-0.01em] ${
           tone === "light"
             ? // Gradient 3 chặng: navy → lam → lime
-              "bg-[linear-gradient(90deg,#021c41_0%,#1e6fd9_50%,#b4d001_100%)] bg-clip-text text-transparent"
+              "text-ink"
             : "text-snow"
         }`}
         lineClassNames={lines.map((_, i) =>

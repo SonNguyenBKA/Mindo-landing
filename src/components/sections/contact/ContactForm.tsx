@@ -1,12 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import {
-  SUBJECTS,
-  contactSchema,
-  toFieldErrors,
-  type ContactFieldErrors,
-} from "@/lib/contact-schema";
+import { contactSchema, toFieldErrors, type ContactFieldErrors, CONTACT_FORM_SUBJECTS } from "@/lib/contact-schema";
 import { ArrowRightIcon, Button } from "@/components/ui/Button";
 import { ChevronDownIcon } from "@/components/ui/Icons";
 
@@ -17,8 +12,8 @@ type Status =
   | { kind: "error"; message: string };
 
 const FIELD_BASE =
-  "w-full rounded-xl border border-haze/22 bg-white/5 px-4 text-[15px] leading-[22px] text-snow " +
-  "placeholder:text-[#7a92b0] transition-colors outline-none " +
+  "w-full rounded-[14px] border border-white/10 bg-white/[0.05] px-4 text-[16px] leading-[24px] text-snow " +
+  "placeholder:text-haze transition-colors outline-none " +
   "focus:border-lime/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-lime/20";
 
 export function ContactForm() {
@@ -101,7 +96,7 @@ export function ContactForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="flex w-full flex-col gap-4.5 rounded-[20px] border border-haze/18 bg-white/5 p-6 shadow-[0_0_36px_0_rgb(180_208_1/0.1),0_20px_44px_-8px_rgb(0_0_0/0.4)] backdrop-blur-sm sm:p-8"
+      className="contact-form-card flex w-full min-w-0 flex-col gap-5 p-6 sm:p-9"
     >
       {/* Họ tên + email */}
       <div className="flex flex-col gap-4 sm:flex-row">
@@ -146,11 +141,11 @@ export function ContactForm() {
           <select
             id={`${uid}-subject`}
             name="subject"
-            defaultValue={SUBJECTS[0]}
+            defaultValue={CONTACT_FORM_SUBJECTS[0]}
             aria-invalid={!!errors.subject}
             className={`${FIELD_BASE} h-[50px] cursor-pointer appearance-none pr-11`}
           >
-            {SUBJECTS.map((s) => (
+            {CONTACT_FORM_SUBJECTS.map((s) => (
               // `text-ink` để chữ trong danh sách mở ra vẫn đọc được
               <option key={s} value={s} className="text-ink">
                 {s}
@@ -167,7 +162,7 @@ export function ContactForm() {
           id={`${uid}-message`}
           name="message"
           rows={5}
-          placeholder="Mô tả ngắn gọn việc bạn cần — kèm mã giao dịch hoặc số seri Peer nếu có."
+          placeholder="Mô tả ngắn gọn việc bạn cần — kèm mã giao dịch hoặc năm sinh của Peer nếu có."
           aria-invalid={!!errors.message}
           className={`${FIELD_BASE} min-h-32 resize-y py-3.5`}
         />
@@ -183,7 +178,7 @@ export function ContactForm() {
             className="mt-0.5 size-5 shrink-0 cursor-pointer appearance-none rounded-md border border-haze/35 bg-white/5 transition-colors checked:border-lime checked:bg-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime
               checked:bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22none%22 stroke=%22%2308182f%22 stroke-width=%222.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22m5 10.5 3.2 3.2L15 6.6%22/></svg>')] checked:bg-center checked:bg-no-repeat"
           />
-          <span className="text-[13px] leading-5 text-[#7a92b0]">
+          <span className="text-[13px] leading-5 text-haze">
             Tôi đồng ý để Mindo dùng thông tin này liên hệ lại về đúng yêu cầu
             trên.
           </span>

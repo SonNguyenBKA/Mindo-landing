@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { contactSchema, toFieldErrors } from "@/lib/contact-schema";
+import { AGENCY_SUBJECT, contactSchema, toFieldErrors } from "@/lib/contact-schema";
 
 /** Chặn spam thô: giới hạn số lần gửi theo IP trong một khoảng thời gian. */
 const RATE_LIMIT_MAX = 5;
@@ -45,6 +45,7 @@ function sweep() {
 
 export async function POST(request: Request) {
   const ip =
+    request.headers.get("cf-connecting-ip") ||
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
     "unknown";
@@ -83,32 +84,50 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, email, subject, message } = parsed.data;
+  const { name, email, subject, message, phone } = parsed.data;
 
   // Dữ liệu đã hợp lệ -> giờ mới trừ lượt
   recordHit(ip);
 
-  // TODO: nối vào kênh nhận thật — ví dụ Resend / SMTP / CRM / Slack webhook.
-  //
-  //   import { Resend } from "resend";
-  //   const resend = new Resend(process.env.RESEND_API_KEY);
-  //   await resend.emails.send({
-  //     from: "website@mindo.vn",
-  //     to: subject === "Mindo Peer & đại lý" ? "peer@mindo.vn" : "hotro@mindo.vn",
-  //     replyTo: email,
-  //     subject: `[${subject}] ${name}`,
-  //     text: message,
-  //   });
-  //
-  // Hiện tại chỉ ghi log để không làm mất yêu cầu trong lúc chưa cấu hình.
-  console.info("[contact] yêu cầu mới", {
-    name,
-    email,
-    subject,
-    length: message.length,
-    ip,
-    at: new Date().toISOString(),
-  });
+  /*
+   * Chuyển về API Mindo (bảng "Liên hệ từ website", Marketing xử lý trong admin).
+   * Cấu hình bằng biến môi trường, không ghi cứng: MINDO_API_URL và WEBSITE_LEAD_SECRET
+   * (mã bí mật dùng chung với API). Thiếu cấu hình thì báo lỗi thật — không giả vờ đã nhận.
+   */
+  const apiUrl = process.env.MINDO_API_URL?.replace(/\/$/, "");
+  const secret = process.env.WEBSITE_LEAD_SECRET;
+  if (!apiUrl || !secret) {
+    console.error("[contact] chưa cấu hình MINDO_API_URL / WEBSITE_LEAD_SECRET");
+    return NextResponse.json(
+      { ok: false, message: "Chưa gửi được lúc này. Vui lòng thử lại sau ít phút." },
+      { status: 503 },
+    );
+  }
+
+  try {
+    const res = await fetch(`${apiUrl}/api/v1/public/website-leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-website-secret": secret },
+      body: JSON.stringify({
+        kind: subject === AGENCY_SUBJECT ? "AGENCY" : "CONTACT",
+        name,
+        email,
+        phone: phone || undefined,
+        subject,
+        message,
+        ip: ip === "unknown" ? undefined : ip.slice(0, 64),
+        user_agent: request.headers.get("user-agent")?.slice(0, 300) || undefined,
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+  } catch (error) {
+    console.error("[contact] gửi về API thất bại", error);
+    return NextResponse.json(
+      { ok: false, message: "Chưa gửi được lúc này. Vui lòng thử lại sau ít phút." },
+      { status: 502 },
+    );
+  }
 
   return NextResponse.json({
     ok: true,
